@@ -1,0 +1,112 @@
+@import "tailwindcss";
+@source "../../../../packages/ui/src";
+
+@theme inline {
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
+}
+
+:root {
+  color-scheme: dark;
+  --void-bg: #09090b;
+  --void-bg-alt: #0b0b0e;
+  --void-surface: #111113;
+  --void-surface-hover: #16161a;
+  --void-border: #27272a;
+  --void-border-subtle: #18181b;
+  --void-border-strong: #52525b;
+  --void-grid: rgba(255, 255, 255, 0.035);
+  --void-glow: rgba(56, 189, 248, 0.055);
+  --void-spotlight: rgba(56, 189, 248, 0.07);
+  --void-ink: #fafafa;
+  --void-ink-secondary: #d4d4d8;
+  --void-ink-muted: #a1a1aa;
+  --void-ink-dim: #71717a;
+  --void-accent: #38bdf8;
+  --void-live: #10b981;
+  --void-btn-bg: #fafafa;
+  --void-btn-ink: #09090b;
+  --void-btn-hover: #e4e4e7;
+  --void-header-bg: rgba(9, 9, 11, 0.85);
+}
+
+:root.light {
+  color-scheme: light;
+  --void-bg: #f8f8f7;
+  --void-bg-alt: #f1f1ef;
+  --void-surface: #ffffff;
+  --void-surface-hover: #f4f4f5;
+  --void-border: #e4e4e7;
+  --void-border-subtle: #ececef;
+  --void-border-strong: #a1a1aa;
+  --void-grid: rgba(9, 9, 11, 0.045);
+  --void-glow: rgba(2, 132, 199, 0.06);
+  --void-spotlight: rgba(2, 132, 199, 0.07);
+  --void-ink: #09090b;
+  --void-ink-secondary: #27272a;
+  --void-ink-muted: #52525b;
+  --void-ink-dim: #71717a;
+  --void-accent: #0284c7;
+  --void-live: #059669;
+  --void-btn-bg: #09090b;
+  --void-btn-ink: #fafafa;
+  --void-btn-hover: #27272a;
+  --void-header-bg: rgba(248, 248, 247, 0.88);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--void-bg);
+  color: var(--void-ink);
+}
+
+.void-draft-grid {
+  background-image:
+    linear-gradient(to right, var(--void-grid) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--void-grid) 1px, transparent 1px);
+  background-size: 32px 32px;
+  mask-image: radial-gradient(ellipse 85% 65% at 50% 15%, #000 40%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 85% 65% at 50% 15%, #000 40%, transparent 100%);
+}
+
+::view-transition,
+::view-transition-group(root),
+::view-transition-old(root),
+::view-transition-new(root) {
+  pointer-events: none;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(root) {
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  z-index: 9999;
+}
+
+.void-thumb-light {
+  display: none;
+}
+
+:root.light .void-thumb-dark {
+  display: none;
+}
+
+:root.light .void-thumb-light {
+  display: block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
