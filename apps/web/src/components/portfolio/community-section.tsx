@@ -9,7 +9,6 @@ import {
   ChevronRight,
   Images,
   Layers,
-  Lock,
   Presentation,
   X,
   ZoomIn,
@@ -21,6 +20,7 @@ import {
   type CertificateItem,
   type CommunityHighlight,
 } from '@/data/portfolio';
+import { TiltCard, useBodyScrollLock } from './motion-primitives';
 
 const CARD_ICONS = [Award, Presentation, Layers] as const;
 
@@ -29,10 +29,10 @@ export function CommunitySection() {
   const [photoIdx, setPhotoIdx] = useState(0);
   const [activeCertificate, setActiveCertificate] = useState<CertificateItem | null>(null);
 
+  useBodyScrollLock(Boolean(activeHighlight || activeCertificate));
+
   useEffect(() => {
     if (!activeHighlight && !activeCertificate) return;
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
 
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -47,7 +47,6 @@ export function CommunitySection() {
     window.addEventListener('keydown', onKeyDown);
 
     return () => {
-      document.body.style.overflow = prevOverflow;
       window.removeEventListener('keydown', onKeyDown);
     };
   }, [activeHighlight, activeCertificate]);
@@ -79,80 +78,88 @@ export function CommunitySection() {
         {COMMUNITY_HIGHLIGHTS.map((item, idx) => {
           const Icon = CARD_ICONS[idx] ?? Award;
           return (
-            <article
+            <motion.div
               key={item.id}
-              className="flex flex-col justify-between border border-[var(--void-border)] bg-[var(--void-surface)] transition-colors hover:border-[var(--void-border-strong)]"
+              initial={{ opacity: 0, y: 18 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.15 }}
+              transition={{ duration: 0.38, delay: idx * 0.06, ease: [0.22, 1, 0.36, 1] }}
+              className="h-full"
             >
-              <div>
-                <button
-                  type="button"
-                  onClick={() => openGallery(item, 0)}
-                  aria-label={`Inspect photos for ${item.title}`}
-                  className="group relative block aspect-[16/10] w-full overflow-hidden border-b border-[var(--void-border)] bg-[var(--void-bg-alt)] text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--void-accent)]"
-                >
-                  <img
-                    src={item.coverSrc}
-                    alt={item.title}
-                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
-                  />
-                  <div className="pointer-events-none absolute inset-x-0 top-0 flex items-center justify-between gap-2 p-3">
-                    <span className="inline-flex items-center gap-1.5 border border-[var(--void-border)] bg-[var(--void-header-bg)] px-2.5 py-1 font-mono text-[10px] uppercase tracking-wider text-[var(--void-ink)] backdrop-blur-sm">
-                      <Icon className="h-3 w-3 text-[var(--void-accent)]" strokeWidth={1.75} />
-                      {item.badge}
-                    </span>
+              <TiltCard maxTilt={3.5} hoverScale={1.015} className="h-full">
+                <article className="flex h-full flex-col justify-between">
+                  <div>
+                    <button
+                      type="button"
+                      onClick={() => openGallery(item, 0)}
+                      aria-label={`Inspect photos for ${item.title}`}
+                      className="group relative block aspect-[16/10] w-full overflow-hidden border-b border-[var(--void-border)] bg-[var(--void-bg-alt)] text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--void-accent)]"
+                    >
+                      <img
+                        src={item.coverSrc}
+                        alt={item.title}
+                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                      />
+                      <div className="pointer-events-none absolute inset-x-0 top-0 flex items-center justify-between gap-2 p-3">
+                        <span className="inline-flex items-center gap-1.5 border border-[var(--void-border)] bg-[var(--void-header-bg)] px-2.5 py-1 font-mono text-[10px] uppercase tracking-wider text-[var(--void-ink)] backdrop-blur-sm">
+                          <Icon className="h-3 w-3 text-[var(--void-accent)]" strokeWidth={1.75} />
+                          {item.badge}
+                        </span>
+                      </div>
+                      <span className="pointer-events-none absolute bottom-2.5 right-2.5 inline-flex items-center gap-1 border border-[var(--void-border)] bg-[var(--void-header-bg)] px-2 py-1 font-mono text-[10px] text-[var(--void-ink)] backdrop-blur-sm">
+                        <Images className="h-3 w-3 text-[var(--void-accent)]" strokeWidth={1.5} />
+                        {item.photos.length} Photos
+                      </span>
+                    </button>
+
+                    <div className="space-y-3 p-5 sm:p-6">
+                      <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--void-ink-dim)]">
+                        <span className="text-[var(--void-accent)]">{item.index}</span> · {item.organizer}
+                      </p>
+
+                      <h3 className="min-h-[3.25rem] text-lg font-semibold tracking-tight text-[var(--void-ink)]">
+                        {item.title}
+                      </h3>
+
+                      <p className="text-sm leading-relaxed text-[var(--void-ink-muted)]">
+                        {item.summary}
+                      </p>
+
+                      <ul className="space-y-1.5 pt-1 text-xs leading-relaxed text-[var(--void-ink-secondary)]">
+                        {item.highlights.map((bullet) => (
+                          <li key={bullet} className="flex items-start gap-2">
+                            <span className="mt-1.5 h-1 w-1 shrink-0 bg-[var(--void-accent)]" />
+                            <span>{bullet}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   </div>
-                  <span className="pointer-events-none absolute bottom-2.5 right-2.5 inline-flex items-center gap-1 border border-[var(--void-border)] bg-[var(--void-header-bg)] px-2 py-1 font-mono text-[10px] text-[var(--void-ink)] backdrop-blur-sm">
-                    <Images className="h-3 w-3 text-[var(--void-accent)]" strokeWidth={1.5} />
-                    {item.photos.length} Photos
-                  </span>
-                </button>
 
-                <div className="space-y-3 p-5 sm:p-6">
-                  <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--void-ink-dim)]">
-                    <span className="text-[var(--void-accent)]">{item.index}</span> · {item.organizer}
-                  </p>
+                  <div className="flex flex-wrap items-center gap-2 border-t border-[var(--void-border)] px-5 py-3.5 sm:px-6">
+                    <button
+                      type="button"
+                      onClick={() => openGallery(item, 0)}
+                      className="inline-flex min-h-[40px] flex-1 items-center justify-center gap-1.5 border border-[var(--void-border)] bg-[var(--void-bg)] px-3 font-mono text-xs text-[var(--void-ink)] transition-colors hover:border-[var(--void-border-strong)]"
+                    >
+                      <Images className="h-3.5 w-3.5 text-[var(--void-accent)]" strokeWidth={1.5} />
+                      Inspect Photos ({item.photos.length})
+                    </button>
 
-                  <h3 className="text-lg font-semibold tracking-tight text-[var(--void-ink)]">
-                    {item.title}
-                  </h3>
-
-                  <p className="text-sm leading-relaxed text-[var(--void-ink-muted)]">
-                    {item.summary}
-                  </p>
-
-                  <ul className="space-y-1.5 pt-1 text-xs leading-relaxed text-[var(--void-ink-secondary)]">
-                    {item.highlights.map((bullet) => (
-                      <li key={bullet} className="flex items-start gap-2">
-                        <span className="mt-1.5 h-1 w-1 shrink-0 bg-[var(--void-accent)]" />
-                        <span>{bullet}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-
-              <div className="flex flex-wrap items-center gap-2 border-t border-[var(--void-border)] px-5 py-3.5 sm:px-6">
-                <button
-                  type="button"
-                  onClick={() => openGallery(item, 0)}
-                  className="inline-flex min-h-[40px] flex-1 items-center justify-center gap-1.5 border border-[var(--void-border)] bg-[var(--void-bg)] px-3 font-mono text-xs text-[var(--void-ink)] transition-colors hover:border-[var(--void-border-strong)]"
-                >
-                  <Images className="h-3.5 w-3.5 text-[var(--void-accent)]" strokeWidth={1.5} />
-                  Inspect Photos ({item.photos.length})
-                </button>
-
-                {item.certificateId ? (
-                  <button
-                    type="button"
-                    onClick={() => openCertificateById(item.certificateId!)}
-                    className="inline-flex min-h-[40px] items-center justify-center gap-1.5 border border-[var(--void-border)] bg-[var(--void-btn-bg)] px-3 font-mono text-xs font-medium text-[var(--void-btn-ink)] transition-colors hover:bg-[var(--void-btn-hover)]"
-                  >
-                    <BadgeCheck className="h-3.5 w-3.5" strokeWidth={1.75} />
-                    <span>{item.certificateLabel ?? 'View Certificate'}</span>
-                  </button>
-                ) : null}
-              </div>
-            </article>
+                    {item.certificateId ? (
+                      <button
+                        type="button"
+                        onClick={() => openCertificateById(item.certificateId!)}
+                        className="inline-flex min-h-[40px] items-center justify-center gap-1.5 border border-[var(--void-border)] bg-[var(--void-btn-bg)] px-3 font-mono text-xs font-medium text-[var(--void-btn-ink)] transition-colors hover:bg-[var(--void-btn-hover)]"
+                      >
+                        <BadgeCheck className="h-3.5 w-3.5" strokeWidth={1.75} />
+                        <span>{item.certificateLabel ?? 'View Certificate'}</span>
+                      </button>
+                    ) : null}
+                  </div>
+                </article>
+              </TiltCard>
+            </motion.div>
           );
         })}
       </div>
@@ -227,10 +234,6 @@ export function CommunitySection() {
                     <ZoomIn className="h-3.5 w-3.5" strokeWidth={1.75} />
                     Inspect Certificate
                   </button>
-                  <span className="inline-flex items-center gap-1.5 font-mono text-[11px] text-[var(--void-ink-dim)]">
-                    <Lock className="h-3 w-3 text-[var(--void-accent)]" strokeWidth={1.6} />
-                    View-only preview
-                  </span>
                 </div>
               </div>
             </div>
@@ -263,7 +266,7 @@ export function CommunitySection() {
               transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
               className="relative z-10 flex max-h-[92dvh] w-full max-w-3xl flex-col overflow-hidden border border-[var(--void-border)] bg-[var(--void-surface)]"
             >
-              <div className="flex items-center justify-between gap-3 border-b border-[var(--void-border)] px-4 py-3 sm:px-5">
+              <div className="flex shrink-0 items-center justify-between gap-3 border-b border-[var(--void-border)] px-4 py-3 sm:px-5">
                 <div className="min-w-0">
                   <p className="font-mono text-[11px] uppercase tracking-wider text-[var(--void-accent)]">
                     {activeHighlight.badge} · {activeHighlight.organizer}
@@ -285,7 +288,10 @@ export function CommunitySection() {
                 </button>
               </div>
 
-              <div className="space-y-4 overflow-y-auto p-4 sm:p-5">
+              <div
+                data-lenis-prevent
+                className="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain p-4 sm:p-5"
+              >
                 <div className="relative aspect-[16/10] w-full overflow-hidden border border-[var(--void-border)] bg-[var(--void-bg)]">
                   <img
                     src={activePhoto.src}
@@ -377,7 +383,7 @@ export function CommunitySection() {
               transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
               className="relative z-10 flex max-h-[92dvh] w-full max-w-4xl flex-col overflow-hidden border border-[var(--void-border)] bg-[var(--void-surface)]"
             >
-              <div className="flex items-center justify-between gap-3 border-b border-[var(--void-border)] px-4 py-3 sm:px-5">
+              <div className="flex shrink-0 items-center justify-between gap-3 border-b border-[var(--void-border)] px-4 py-3 sm:px-5">
                 <div className="min-w-0">
                   <p className="font-mono text-[11px] uppercase tracking-wider text-[var(--void-accent)]">
                     {activeCertificate.credentialType} · {activeCertificate.date}
@@ -391,10 +397,6 @@ export function CommunitySection() {
                 </div>
 
                 <div className="flex shrink-0 items-center gap-2">
-                  <span className="inline-flex items-center gap-1.5 border border-[var(--void-border)] bg-[var(--void-bg)] px-2.5 py-1.5 font-mono text-[11px] text-[var(--void-ink-muted)]">
-                    <Lock className="h-3 w-3 text-[var(--void-accent)]" strokeWidth={1.6} />
-                    <span>View Only</span>
-                  </span>
                   <button
                     type="button"
                     onClick={() => setActiveCertificate(null)}
@@ -406,7 +408,10 @@ export function CommunitySection() {
                 </div>
               </div>
 
-              <div className="space-y-4 overflow-y-auto p-4 sm:p-5">
+              <div
+                data-lenis-prevent
+                className="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain p-4 sm:p-5"
+              >
                 <div
                   onContextMenu={(e) => e.preventDefault()}
                   className="relative select-none overflow-hidden border border-[var(--void-border)] bg-[var(--void-bg)]"
@@ -425,9 +430,6 @@ export function CommunitySection() {
                   </p>
                   <p className="text-sm leading-relaxed text-[var(--void-ink-muted)]">
                     {activeCertificate.summary}
-                  </p>
-                  <p className="pt-1 font-mono text-[11px] text-[var(--void-ink-dim)]">
-                    Watermarked preview for portfolio verification. Original credential available directly upon request.
                   </p>
                 </div>
               </div>

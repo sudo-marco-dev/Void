@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { ArrowUpRight, Menu, X } from 'lucide-react';
+import { ArrowUpRight, Command, Menu, X } from 'lucide-react';
 import { CONTACT_LINKS, PROFILE } from '@/data/portfolio';
 import { ThemeToggle } from './theme-toggle';
 
@@ -17,6 +17,10 @@ const NAV_LINKS = [
 
 export function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+
+  function openCommandPalette() {
+    window.dispatchEvent(new CustomEvent('void:open-cmd'));
+  }
 
   return (
     <header
@@ -50,6 +54,16 @@ export function Navbar() {
               <span>{item.label}</span>
             </a>
           ))}
+          <button
+            type="button"
+            onClick={openCommandPalette}
+            aria-label="Open quick jump command palette"
+            title="Quick jump (Ctrl+K / Cmd+K)"
+            className="inline-flex h-9 items-center gap-1.5 border border-[var(--void-border)] bg-[var(--void-surface)] px-2.5 font-mono text-xs text-[var(--void-ink-muted)] transition-colors hover:border-[var(--void-accent)] hover:text-[var(--void-ink)]"
+          >
+            <Command className="h-3.5 w-3.5 text-[var(--void-accent)]" strokeWidth={1.6} />
+            <span>K</span>
+          </button>
           <a
             href={CONTACT_LINKS.githubUrl}
             target="_blank"
@@ -63,6 +77,15 @@ export function Navbar() {
         </nav>
 
         <div className="flex items-center gap-2 md:hidden">
+          <button
+            type="button"
+            onClick={openCommandPalette}
+            aria-label="Open quick jump command palette"
+            className="inline-flex h-11 items-center gap-1 border border-[var(--void-border)] bg-[var(--void-surface)] px-2.5 font-mono text-xs text-[var(--void-ink-secondary)] transition-colors hover:border-[var(--void-accent)]"
+          >
+            <Command className="h-3.5 w-3.5 text-[var(--void-accent)]" strokeWidth={1.6} />
+            <span>K</span>
+          </button>
           <ThemeToggle />
           <button
             type="button"

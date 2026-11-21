@@ -1,7 +1,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { Box, Cpu, Image as ImageIcon, Layers, Monitor, Printer, X, ZoomIn } from 'lucide-react';
 import {
@@ -9,6 +9,8 @@ import {
   type ShowcaseCategory,
   type ShowcaseItem,
 } from '@/data/portfolio';
+import { CadCoverflowCarousel } from './cad-coverflow-carousel';
+import { TiltCard, useBodyScrollLock } from './motion-primitives';
 
 const CadModelViewer = dynamic(
   () => import('./cad-model-viewer').then((mod) => mod.CadModelViewer),
@@ -23,11 +25,10 @@ const CadModelViewer = dynamic(
   },
 );
 
-type FilterKey = 'all' | ShowcaseCategory;
+type CraftFilterKey = 'all-craft' | Exclude<ShowcaseCategory, '3d-models'>;
 
-const FILTERS: { key: FilterKey; label: string }[] = [
-  { key: 'all', label: 'All' },
-  { key: '3d-models', label: '3D Models' },
+const CRAFT_FILTERS: { key: CraftFilterKey; label: string }[] = [
+  { key: 'all-craft', label: 'All Craft' },
   { key: '3d-prints', label: '3D Prints' },
   { key: 'hardware', label: 'Wiring & Hardware' },
   { key: 'offline-apps', label: 'Offline Apps' },
@@ -41,18 +42,43 @@ const CATEGORY_ICONS: Record<ShowcaseCategory, typeof Box> = {
 };
 
 export function ShowcaseGallery() {
-  const [filter, setFilter] = useState<FilterKey>('all');
+  const [craftFilter, setCraftFilter] = useState<CraftFilterKey>('all-craft');
   const [activeItem, setActiveItem] = useState<ShowcaseItem | null>(null);
 
-  const visibleItems =
-    filter === 'all'
-      ? SHOWCASE_GALLERY
-      : SHOWCASE_GALLERY.filter((item) => item.category === filter);
+  const cadModels = useMemo(
+    () => SHOWCASE_GALLERY.filter((item) => item.category === '3d-models'),
+    [],
+  );
+
+  const craftItems = useMemo(
+    () => SHOWCASE_GALLERY.filter((item) => item.category !== '3d-models'),
+    [],
+  );
+
+  const visibleCraft =
+    craftFilter === 'all-craft'
+      ? craftItems
+      : craftItems.filter((item) => item.category === craftFilter);
+
+  useEffect(() => {
+    const onOpenShowcase = (e: Event) => {
+      const id = (e as CustomEvent<string>).detail;
+      const found = SHOWCASE_GALLERY.find((item) => item.id === id);
+      if (found) {
+        if (found.category !== '3d-models') {
+          setCraftFilter(found.category);
+        }
+        setActiveItem(found);
+      }
+    };
+    window.addEventListener('void:open-showcase', onOpenShowcase);
+    return () => window.removeEventListener('void:open-showcase', onOpenShowcase);
+  }, []);
+
+  useBodyScrollLock(Boolean(activeItem));
 
   useEffect(() => {
     if (!activeItem) return;
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
 
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setActiveItem(null);
@@ -60,154 +86,119 @@ export function ShowcaseGallery() {
     window.addEventListener('keydown', onKeyDown);
 
     return () => {
-      document.body.style.overflow = prevOverflow;
       window.removeEventListener('keydown', onKeyDown);
     };
   }, [activeItem]);
 
   return (
-    <div className="mt-8 border border-[var(--void-border)] bg-[var(--void-surface)]">
-      <div className="flex flex-col justify-between gap-3 border-b border-[var(--void-border)] px-4 py-4 sm:flex-row sm:items-center sm:px-6">
-        <div className="space-y-0.5">
-          <p className="font-mono text-xs uppercase tracking-[0.16em] text-[var(--void-accent)]">
-            Visual Showcase · Models, Prints, Wiring &amp; Offline Samples
-          </p>
-          <p className="text-xs text-[var(--void-ink-muted)] sm:text-sm">
-            Samples of CAD models, 3D-printed housings, soldered wiring, and local systems. Tap any item to inspect.
-          </p>
+    <div id="showcase" className="mt-8 space-y-8">
+      {/* 1. Interactive 3D CAD Coverflow Deck */}
+      <CadCoverflowCarousel
+        items={cadModels}
+        paused={Boolean(activeItem)}
+        onSelectModel={setActiveItem}
+      />
+
+      {/* 2. Filterable Physical Craft & Local Builds Shelf */}
+      <div className="border border-[var(--void-border)] bg-[var(--void-surface)]">
+        <div className="flex flex-col justify-between gap-2 border-b border-[var(--void-border)] px-4 py-4 sm:flex-row sm:items-center sm:px-6">
+          <div className="space-y-0.5">
+            <p className="font-mono text-xs uppercase tracking-[0.16em] text-[var(--void-amber)]">
+              Physical Craft, Wiring &amp; Offline Systems ({craftItems.length})
+            </p>
+            <p className="text-xs text-[var(--void-ink-muted)] sm:text-sm">
+              Dual-nozzle Creator 3 prints, soldered ESP32 hardware, and seeded POS screens. Tap any card to zoom.
+            </p>
+          </div>
         </div>
-      </div>
 
-      {/* Category Filter Bar */}
-      <div className="flex flex-wrap gap-1 border-b border-[var(--void-border)] bg-[var(--void-bg)] px-4 py-2 sm:px-6">
-        {FILTERS.map((item) => {
-          const active = filter === item.key;
-          const count =
-            item.key === 'all'
-              ? SHOWCASE_GALLERY.length
-              : SHOWCASE_GALLERY.filter((entry) => entry.category === item.key).length;
-          return (
-            <button
-              key={item.key}
-              type="button"
-              onClick={() => setFilter(item.key)}
-              className={`relative min-h-[40px] px-3 font-mono text-xs transition-colors ${
-                active
-                  ? 'text-[var(--void-ink)]'
-                  : 'text-[var(--void-ink-dim)] hover:text-[var(--void-ink)]'
-              }`}
-            >
-              {item.label} ({count})
-              {active ? (
-                <motion.span
-                  layoutId="showcase-filter-tab"
-                  className="absolute inset-x-0 bottom-0 h-[2px] bg-[var(--void-accent)]"
-                />
-              ) : null}
-            </button>
-          );
-        })}
-      </div>
+        <div className="flex flex-wrap gap-1 border-b border-[var(--void-border)] bg-[var(--void-bg)] px-4 py-2 sm:px-6">
+          {CRAFT_FILTERS.map((item) => {
+            const active = craftFilter === item.key;
+            const count =
+              item.key === 'all-craft'
+                ? craftItems.length
+                : craftItems.filter((entry) => entry.category === item.key).length;
+            return (
+              <button
+                key={item.key}
+                type="button"
+                onClick={() => setCraftFilter(item.key)}
+                className={`relative min-h-[40px] px-3 font-mono text-xs transition-colors ${
+                  active
+                    ? 'text-[var(--void-ink)]'
+                    : 'text-[var(--void-ink-dim)] hover:text-[var(--void-ink)]'
+                }`}
+              >
+                {item.label} ({count})
+                {active ? (
+                  <motion.span
+                    layoutId="craft-filter-tab"
+                    className="absolute inset-x-0 bottom-0 h-[2px] bg-[var(--void-amber)]"
+                  />
+                ) : null}
+              </button>
+            );
+          })}
+        </div>
 
-      {/* Responsive Showcase Grid */}
-      <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 sm:p-6 lg:grid-cols-3">
-        {visibleItems.map((item) => {
-          const CategoryIcon = CATEGORY_ICONS[item.category] ?? Layers;
-          const isInteractive3D = Boolean(item.modelSrc);
-
-          return (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => setActiveItem(item)}
-              className="group flex flex-col border border-[var(--void-border)] bg-[var(--void-bg)] text-left transition-colors hover:border-[var(--void-border-strong)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--void-accent)]"
-            >
-              <div className="relative aspect-[4/3] w-full overflow-hidden border-b border-[var(--void-border)] bg-[var(--void-bg-alt)]">
-                {item.imageSrc ? (
-                  <>
-                    {item.lightImageSrc ? (
+        <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 sm:p-6 lg:grid-cols-3">
+          {visibleCraft.map((item) => {
+            const CategoryIcon = CATEGORY_ICONS[item.category] ?? Layers;
+            return (
+              <TiltCard key={item.id} maxTilt={4.5} hoverScale={1.02} className="bg-[var(--void-bg)]">
+                <button
+                  type="button"
+                  onClick={() => setActiveItem(item)}
+                  className="flex h-full w-full flex-col text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--void-accent)]"
+                >
+                  <div className="relative aspect-[4/3] w-full overflow-hidden border-b border-[var(--void-border)] bg-[var(--void-bg-alt)]">
+                    {item.imageSrc ? (
                       <>
                         <img
                           src={item.imageSrc}
                           alt={item.title}
-                          className="void-thumb-dark h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                          className="h-full w-full object-cover object-top transition-transform duration-300 group-hover:scale-[1.03]"
                         />
-                        <img
-                          src={item.lightImageSrc}
-                          alt={item.title}
-                          className="void-thumb-light h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
-                        />
+                        <span className="pointer-events-none absolute bottom-2 right-2 inline-flex items-center gap-1 border border-[var(--void-border)] bg-[var(--void-header-bg)] px-2 py-0.5 font-mono text-[10px] text-[var(--void-ink)] opacity-0 backdrop-blur-sm transition-opacity duration-200 group-hover:opacity-100">
+                          <ZoomIn className="h-3 w-3 text-[var(--void-accent)]" strokeWidth={1.6} />
+                          Zoom
+                        </span>
                       </>
                     ) : (
-                      <img
-                        src={item.imageSrc}
-                        alt={item.title}
-                        className="h-full w-full object-cover object-top transition-transform duration-300 group-hover:scale-[1.02]"
-                      />
-                    )}
-                    {isInteractive3D ? (
-                      <>
-                        <span className="pointer-events-none absolute left-2.5 top-2.5 inline-flex items-center gap-1 border border-[var(--void-border)] bg-[var(--void-header-bg)] px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-[var(--void-ink)] backdrop-blur-sm">
-                          <Box className="h-3 w-3 text-[var(--void-accent)]" strokeWidth={1.75} />
-                          3D CAD
-                        </span>
-                        <span className="pointer-events-none absolute bottom-2.5 right-2.5 border border-[var(--void-border)] bg-[var(--void-header-bg)] px-2 py-0.5 font-mono text-[10px] text-[var(--void-accent)] backdrop-blur-sm">
-                          Interactive 3D · {item.partCount ?? 2} Parts →
-                        </span>
-                      </>
-                    ) : null}
-                  </>
-                ) : (
-                  <div className="void-draft-grid flex h-full w-full flex-col justify-between p-3">
-                    <div className="flex items-center justify-between font-mono text-[10px] uppercase tracking-wider text-[var(--void-ink-dim)]">
-                      <span>{item.categoryLabel}</span>
-                      <CategoryIcon className="h-3.5 w-3.5 text-[var(--void-accent)]" strokeWidth={1.5} />
-                    </div>
-                    <div className="flex flex-col items-center justify-center gap-1.5 py-2 text-center">
-                      {isInteractive3D ? (
-                        <>
-                          <Box className="h-7 w-7 text-[var(--void-accent)]" strokeWidth={1.35} />
-                          <span className="font-mono text-[10px] uppercase tracking-wider text-[var(--void-ink)]">
-                            Interactive 3D · {item.partCount ?? 2} Parts
-                          </span>
-                        </>
-                      ) : (
-                        <>
+                      <div className="void-draft-grid flex h-full w-full flex-col justify-between p-3">
+                        <div className="flex items-center justify-between font-mono text-[10px] uppercase tracking-wider text-[var(--void-ink-dim)]">
+                          <span>{item.categoryLabel}</span>
+                          <CategoryIcon className="h-3.5 w-3.5 text-[var(--void-accent)]" strokeWidth={1.5} />
+                        </div>
+                        <div className="flex flex-col items-center justify-center gap-1.5 py-2 text-center">
                           <ImageIcon className="h-6 w-6 text-[var(--void-ink-dim)]" strokeWidth={1.25} />
-                          <span className="font-mono text-[10px] uppercase tracking-wider text-[var(--void-ink-muted)]">
-                            Photo Placeholder
-                          </span>
-                        </>
-                      )}
-                    </div>
-                    <div className="flex items-center justify-between border-t border-[var(--void-border)] pt-2 font-mono text-[10px] text-[var(--void-ink-dim)]">
-                      <span>{isInteractive3D ? 'Rotate · X-Ray · Parts' : 'Ready for upload'}</span>
-                      {isInteractive3D ? (
-                        <span className="text-[var(--void-accent)]">Inspect in 3D →</span>
-                      ) : (
-                        <ZoomIn className="h-3 w-3 text-[var(--void-accent)]" strokeWidth={1.5} />
-                      )}
-                    </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
 
-              <div className="flex flex-1 flex-col justify-between p-3.5">
-                <div className="space-y-1">
-                  <h4 className="text-sm font-semibold text-[var(--void-ink)] transition-colors group-hover:text-[var(--void-accent)]">
-                    {item.title}
-                  </h4>
-                  <p className="text-xs leading-relaxed text-[var(--void-ink-muted)]">
-                    {item.caption}
-                  </p>
-                </div>
-                <p className="mt-3 font-mono text-[10px] uppercase tracking-wider text-[var(--void-ink-dim)]">
-                  {item.tools}
-                </p>
-              </div>
-            </button>
-          );
-        })}
+                  <div className="flex flex-1 flex-col justify-between p-3.5">
+                    <div className="space-y-1">
+                      <p className="font-mono text-[10px] uppercase tracking-wider text-[var(--void-accent)]">
+                        {item.categoryLabel}
+                      </p>
+                      <h4 className="text-sm font-semibold text-[var(--void-ink)] transition-colors group-hover:text-[var(--void-accent)]">
+                        {item.title}
+                      </h4>
+                      <p className="text-xs leading-relaxed text-[var(--void-ink-muted)]">
+                        {item.caption}
+                      </p>
+                    </div>
+                    <p className="mt-3 border-t border-[var(--void-border)] pt-2.5 font-mono text-[10px] uppercase tracking-wider text-[var(--void-ink-dim)]">
+                      {item.tools}
+                    </p>
+                  </div>
+                </button>
+              </TiltCard>
+            );
+          })}
+        </div>
       </div>
 
       {/* Tap-to-Zoom Lightbox / Interactive 3D CAD Modal */}
@@ -237,7 +228,7 @@ export function ShowcaseGallery() {
                 activeItem.modelSrc ? 'max-w-4xl' : 'max-w-2xl'
               }`}
             >
-              <div className="flex items-center justify-between border-b border-[var(--void-border)] px-4 py-3 sm:px-5">
+              <div className="flex shrink-0 items-center justify-between border-b border-[var(--void-border)] px-4 py-3 sm:px-5">
                 <div className="min-w-0">
                   <p className="font-mono text-[11px] uppercase tracking-wider text-[var(--void-accent)]">
                     {activeItem.categoryLabel} · {activeItem.tools}
@@ -259,7 +250,10 @@ export function ShowcaseGallery() {
                 </button>
               </div>
 
-              <div className="overflow-y-auto p-4 sm:p-5">
+              <div
+                data-lenis-prevent
+                className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 sm:p-5"
+              >
                 {activeItem.modelSrc ? (
                   <CadModelViewer
                     modelSrc={activeItem.modelSrc}
@@ -275,19 +269,7 @@ export function ShowcaseGallery() {
                         alt={activeItem.title}
                         className="max-h-[62dvh] w-full object-contain"
                       />
-                    ) : (
-                      <div className="void-draft-grid flex aspect-[16/10] w-full flex-col items-center justify-center gap-2 p-6 text-center">
-                        <ImageIcon className="h-10 w-10 text-[var(--void-ink-dim)]" strokeWidth={1.25} />
-                        <p className="font-mono text-xs uppercase tracking-widest text-[var(--void-ink)]">
-                          Showcase Placeholder Slot
-                        </p>
-                        <p className="max-w-md font-mono text-xs text-[var(--void-ink-muted)]">
-                          Save your image at <span className="text-[var(--void-accent)]">{activeItem.suggestedPath}</span> and set{' '}
-                          <span className="text-[var(--void-ink)]">imageSrc</span> in{' '}
-                          <span className="text-[var(--void-ink)]">apps/web/src/data/portfolio.ts</span>.
-                        </p>
-                      </div>
-                    )}
+                    ) : null}
                   </div>
                 )}
 

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Check, Copy, Github, Mail, MessageCircle } from 'lucide-react';
 import { CONTACT_LINKS, PROFILE } from '@/data/portfolio';
+import { MagneticButton } from './motion-primitives';
 
 export function ContactFooter() {
   const [copied, setCopied] = useState(false);
@@ -38,18 +39,20 @@ export function ContactFooter() {
 
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:col-span-6">
             {/* Messenger (Primary quick-chat CTA) */}
-            <a
-              href={CONTACT_LINKS.messengerUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex min-h-[48px] items-center justify-between border border-[var(--void-border)] bg-[var(--void-btn-bg)] px-4 text-sm font-medium text-[var(--void-btn-ink)] transition-colors hover:bg-[var(--void-btn-hover)] sm:col-span-2"
-            >
-              <span className="inline-flex items-center gap-2">
-                <MessageCircle className="h-4 w-4" strokeWidth={1.75} />
-                Message on Messenger
-              </span>
-              <span className="font-mono text-xs opacity-75">m.me/marcorye255 →</span>
-            </a>
+            <MagneticButton className="w-full sm:col-span-2">
+              <a
+                href={CONTACT_LINKS.messengerUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex min-h-[48px] w-full items-center justify-between border border-[var(--void-border)] bg-[var(--void-btn-bg)] px-4 text-sm font-medium text-[var(--void-btn-ink)] transition-colors hover:bg-[var(--void-btn-hover)]"
+              >
+                <span className="inline-flex items-center gap-2">
+                  <MessageCircle className="h-4 w-4" strokeWidth={1.75} />
+                  Message on Messenger
+                </span>
+                <span className="font-mono text-xs opacity-75">m.me/marcorye255 →</span>
+              </a>
+            </MagneticButton>
 
             {/* Email + One-Tap Copy */}
             <div className="flex min-h-[48px] border border-[var(--void-border)] bg-[var(--void-surface)]">

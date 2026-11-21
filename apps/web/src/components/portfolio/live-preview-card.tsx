@@ -110,7 +110,7 @@ export function LivePreviewCard({
           onInspect(project);
         }
       }}
-      className="group relative flex h-full cursor-pointer flex-col border border-[var(--void-border)] bg-[var(--void-surface)] transition-colors duration-300 hover:border-[var(--void-border-strong)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--void-accent)]"
+      className="group relative flex h-full cursor-pointer flex-col border border-[var(--void-border)] bg-[var(--void-surface)] transition-colors duration-300 hover:border-[var(--void-accent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--void-accent)]"
     >
       {/* Browser chrome preview frame */}
       <div className="border-b border-[var(--void-border)] bg-[var(--void-bg)]">
@@ -123,7 +123,7 @@ export function LivePreviewCard({
               {project.liveUrl
                 ? project.liveUrl.replace(/^https?:\/\//, '')
                 : project.previewImage
-                  ? 'local · nextjs + postgresql'
+                  ? 'local · nextjs + sqlite'
                   : 'github.com/sudo-marco-dev'}
             </span>
           </div>
@@ -145,51 +145,81 @@ export function LivePreviewCard({
           ref={frameBoxRef}
           className="relative aspect-[16/10] w-full overflow-hidden bg-[var(--void-bg-alt)]"
           style={{
-            contain: 'strict',
             clipPath: 'inset(0)',
-            isolation: 'isolate',
           }}
         >
           {isEmbeddable ? (
-            <>
-              {!iframeLoaded ? (
-                <div className="void-draft-grid absolute inset-0 z-10 flex flex-col justify-between bg-[var(--void-bg-alt)] p-4 sm:p-5">
-                  <div className="flex items-center justify-between font-mono text-[10px] uppercase tracking-widest text-[var(--void-ink-dim)]">
-                    <span>Loading Desktop Preview</span>
-                    <Monitor className="h-3.5 w-3.5 text-[var(--void-accent)]" strokeWidth={1.5} />
-                  </div>
-                  <div className="space-y-1">
-                    <p className="font-mono text-xs text-[var(--void-accent)]">
-                      {project.previewNote}
-                    </p>
-                    <p className="text-sm font-medium text-[var(--void-ink)]">{project.title}</p>
-                  </div>
-                  <div className="flex items-center justify-between border-t border-[var(--void-border)] pt-2.5 font-mono text-[11px] text-[var(--void-ink-muted)]">
-                    <span>1440×900 Monitor View</span>
-                    <span className="text-[var(--void-accent)]">Inspect →</span>
-                  </div>
-                </div>
-              ) : null}
+            (() => {
+              const snapshotSrc = {
+                'psu-sportstrack': '/showcase/live-psu-sportstrack.png',
+                'rtnhs-qr-sms': '/showcase/live-rtnhs-qr-sms.png',
+                'codm-camo-tracker': '/showcase/live-codm-camo-tracker.png',
+              }[project.id];
 
-              {inView && !hidePreview && project.liveUrl ? (
-                <iframe
-                  src={project.liveUrl}
-                  title={`${project.title} live desktop preview`}
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  onLoad={() => setIframeLoaded(true)}
-                  className="pointer-events-none absolute left-0 top-0 block border-0 bg-[var(--void-bg-alt)] transition-opacity duration-300"
-                  style={{
-                    width: MONITOR_W,
-                    height: MONITOR_H,
-                    transform: `scale(${scale})`,
-                    transformOrigin: 'top left',
-                    opacity: iframeLoaded && !isHidden ? 1 : 0,
-                    visibility: isHidden ? 'hidden' : 'visible',
-                  }}
-                />
-              ) : null}
-            </>
+              if (snapshotSrc) {
+                return (
+                  <div className="relative h-full w-full overflow-hidden bg-[var(--void-bg-alt)]">
+                    <img
+                      src={snapshotSrc}
+                      alt={`${project.title} 1440x900 live capture`}
+                      loading="lazy"
+                      className="block h-full w-full object-cover object-top transition-transform duration-300 group-hover:scale-[1.02]"
+                    />
+                    <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-center justify-between bg-gradient-to-t from-[var(--void-bg)]/90 via-[var(--void-bg)]/45 to-transparent px-3 pb-2 pt-6 font-mono text-[10px] uppercase tracking-wider text-[var(--void-ink-muted)]">
+                      <span className="text-[var(--void-accent)]">1440×900 · Live Build</span>
+                      <span>Interactive Embed →</span>
+                    </div>
+                  </div>
+                );
+              }
+
+              return (
+                <>
+                  {!iframeLoaded ? (
+                    <div className="void-draft-grid absolute inset-0 z-10 flex flex-col justify-between bg-[var(--void-bg-alt)] p-4 sm:p-5">
+                      <div className="flex items-center justify-between font-mono text-[10px] uppercase tracking-widest text-[var(--void-ink-dim)]">
+                        <span>Loading Desktop Preview</span>
+                        <Monitor className="h-3.5 w-3.5 text-[var(--void-accent)]" strokeWidth={1.5} />
+                      </div>
+                      <div className="space-y-1">
+                        <p className="font-mono text-xs text-[var(--void-accent)]">
+                          {project.previewNote}
+                        </p>
+                        <p className="text-sm font-medium text-[var(--void-ink)]">{project.title}</p>
+                      </div>
+                      <div className="flex items-center justify-between border-t border-[var(--void-border)] pt-2.5 font-mono text-[11px] text-[var(--void-ink-muted)]">
+                        <span>1440×900 Monitor View</span>
+                        <span className="text-[var(--void-accent)]">Inspect →</span>
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {inView && !hidePreview && project.liveUrl ? (
+                    <div
+                      className="pointer-events-none absolute left-0 top-0 overflow-hidden transition-opacity duration-300"
+                      style={{
+                        width: MONITOR_W,
+                        height: MONITOR_H,
+                        transform: `scale(${scale})`,
+                        transformOrigin: 'top left',
+                        clipPath: 'inset(0)',
+                        opacity: iframeLoaded && !isHidden ? 1 : 0,
+                        visibility: isHidden ? 'hidden' : 'visible',
+                      }}
+                    >
+                      <iframe
+                        src={project.liveUrl}
+                        title={`${project.title} live desktop preview`}
+                        loading="lazy"
+                        referrerPolicy="no-referrer-when-downgrade"
+                        onLoad={() => setIframeLoaded(true)}
+                        className="pointer-events-none block h-full w-full border-0 bg-[var(--void-bg-alt)]"
+                      />
+                    </div>
+                  ) : null}
+                </>
+              );
+            })()
           ) : project.previewImage ? (
             /* Captured local deployment preview for non-hosted systems */
             <div className="relative h-full w-full overflow-hidden bg-[var(--void-bg-alt)]">
@@ -256,9 +286,22 @@ export function LivePreviewCard({
             {project.title}
           </h3>
 
-          <p className="text-sm leading-relaxed text-[var(--void-ink-muted)]">
+          <p className="min-h-[4.25rem] text-sm leading-relaxed text-[var(--void-ink-muted)]">
             {project.plainSummary}
           </p>
+
+          {project.problem && project.outcome ? (
+            <div className="grid min-h-[96px] grid-cols-1 gap-2 border border-[var(--void-border)] bg-[var(--void-bg)] p-2.5 font-mono text-[11px] sm:grid-cols-2">
+              <div className="min-w-0">
+                <span className="text-[var(--void-amber)]">PROBLEM: </span>
+                <span className="text-[var(--void-ink-muted)]">{project.problem}</span>
+              </div>
+              <div className="min-w-0">
+                <span className="text-[var(--void-accent)]">OUTCOME: </span>
+                <span className="text-[var(--void-ink-secondary)]">{project.outcome}</span>
+              </div>
+            </div>
+          ) : null}
         </div>
 
         <div className="mt-5 space-y-4">
@@ -266,7 +309,7 @@ export function LivePreviewCard({
             {project.stack.slice(0, 5).map((tech) => (
               <span
                 key={tech}
-                className="border border-[var(--void-border)] bg-[var(--void-bg)] px-2 py-1 font-mono text-[11px] text-[var(--void-ink-secondary)]"
+                className="inline-flex items-center border border-[var(--void-border)] bg-[var(--void-bg)] px-2 py-1 font-mono text-[11px] text-[var(--void-ink-secondary)] transition-colors hover:border-[var(--void-accent)]/60"
               >
                 {tech}
               </span>

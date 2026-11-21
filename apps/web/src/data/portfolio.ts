@@ -10,6 +10,8 @@ export interface PortfolioProject {
   title: string;
   category: string;
   plainSummary: string;
+  problem?: string;
+  outcome?: string;
   highlights: string[];
   stack: string[];
   liveUrl?: string;
@@ -19,6 +21,8 @@ export interface PortfolioProject {
   previewImage?: string;
   galleryImages?: PortfolioGalleryImage[];
   schematicModules?: string[];
+  cadShowcaseId?: string;
+  cadLabel?: string;
 }
 
 export interface SecondaryBuild {
@@ -30,6 +34,8 @@ export interface SecondaryBuild {
   repoUrl: string;
   embeddable: boolean;
   statusLabel: string;
+  cadShowcaseId?: string;
+  cadLabel?: string;
 }
 
 export type ShowcaseCategory = '3d-models' | '3d-prints' | 'hardware' | 'offline-apps';
@@ -117,7 +123,8 @@ export const PROFILE = {
   university: 'Palawan State University',
   location: 'Palawan, Philippines',
   availability: 'Open for OJT, Junior Full-Stack / IoT Roles & Client Builds',
-  headline: 'I build modern websites, store & booking systems, and custom smart hardware.',
+  shortAvailability: 'OPEN · OJT & COMMISSIONS',
+  headline: 'Full-stack web systems, soldered IoT hardware & custom 3D enclosures.',
   subheadline:
     '4th-year BSIT student at Palawan State University combining full-stack web apps (Next.js, React, Supabase) with ESP32 microcontrollers, soldering, and Onshape + Flashforge Creator 3 prototyping.',
   headshotSrc: '/profile/headshot.jpg' as string | null,
@@ -139,6 +146,8 @@ export const FLAGSHIP_PROJECTS: PortfolioProject[] = [
     category: 'College Capstone · Sports Platform',
     plainSummary:
       'Live tournament scoring, athlete eligibility verification, and stadium big-screen scoreboards built for Palawan State University sports events.',
+    problem: 'Manual paper bracket & COR athlete checks slowed university matches.',
+    outcome: 'Live courtside scoring, jumbotron display & instant PDF eligibility verification.',
     highlights: [
       'Courtside facilitator kiosk mode designed for fast dual-thumb mobile scoring without scrolling',
       'Big-screen stadium display view with Screen Wake Lock, Picture-in-Picture stream, and procedural Web Audio referee SFX',
@@ -158,6 +167,8 @@ export const FLAGSHIP_PROJECTS: PortfolioProject[] = [
     category: 'School Client System · IoT + Web',
     plainSummary:
       'QR code attendance system built for Rio Tuba National High School that checks students in and automatically notifies parents via SMS, paired with an ESP32-CAM unit.',
+    problem: 'Manual student roll calls gave parents zero real-time arrival visibility.',
+    outcome: 'Instant QR/ESP32-CAM check-ins with automated SMS alerts & 3 role portals.',
     highlights: [
       'Three dedicated role portals (Admin, Teacher, and Scanner Terminal) delivered with full client handover docs',
       'Automated parent SMS notifications powered by httpSMS when students scan in on time or late',
@@ -169,6 +180,8 @@ export const FLAGSHIP_PROJECTS: PortfolioProject[] = [
     repoUrl: 'https://github.com/sudo-marco-dev/RTNHS-QR-code-attendace-system-with-SMS',
     embeddable: true,
     previewNote: 'Live Vercel deployment verified (200 OK)',
+    cadShowcaseId: 'rtnhs-qr-scanner-cad',
+    cadLabel: '3D Enclosure',
   },
   {
     id: 'psu-pos',
@@ -177,38 +190,40 @@ export const FLAGSHIP_PROJECTS: PortfolioProject[] = [
     category: 'ADS Finals · Retail & Stock System',
     plainSummary:
       'Point-of-sale checkout, real-time inventory monitoring, and printable sales reporting built for Palawan State University Advanced Database Systems finals.',
+    problem: 'Fragmented stock tracking & manual end-of-day payment reconciliation.',
+    outcome: 'Unified Prisma + SQLite ledger with multi-method analytics, backups & PDF/Excel.',
     highlights: [
-      'Role-based Admin and Cashier dashboards tracking active inventory, daily revenue, and low-stock alerts',
-      'Relational database design modeled with Prisma ORM on PostgreSQL and bcrypt user authentication',
+      'Role-based Admin, Cashier, and Inventory Clerk dashboards with bcrypt auth and SQLite backup/restore',
+      'Relational database schema modeled with Prisma ORM on SQLite across products, suppliers, and sales',
       'Analytics breakdown across GCash, Cash, Card, and PayMaya with exportable PDF and Excel reports',
       'Clean App Router interface built with Next.js 14, TypeScript, Tailwind CSS, and Radix UI',
     ],
-    stack: ['Next.js 14', 'TypeScript', 'Prisma ORM', 'PostgreSQL', 'Tailwind CSS', 'Radix UI', 'jsPDF', 'SheetJS'],
+    stack: ['Next.js 14', 'TypeScript', 'Prisma ORM', 'SQLite', 'Tailwind CSS', 'Radix UI', 'jsPDF', 'SheetJS'],
     repoUrl: 'https://github.com/sudo-marco-dev/psu-sales-inventory-system',
     embeddable: false,
-    previewNote: 'Local Next.js + PostgreSQL build · System captures',
+    previewNote: 'Local Next.js + SQLite build · System captures',
     previewImage: '/showcase/offline-pos-sales-pnl.png',
     galleryImages: [
       {
         src: '/showcase/offline-pos-sales-pnl.png',
         title: 'Sales Summary & Profit/Loss Analytics',
         caption:
-          'Live daily sales breakdown across GCash, Cash, Card, and PayMaya (₱16,911.00 across 14 sales / 42 items) paired with monthly Profit & Loss tracking (37.24% gross margin) and PDF/Excel export.',
+          'Aggregates shift transactions in SQLite via Prisma by payment tender for rapid cashier closeouts, computing real-time COGS gross margin with one-click PDF and Excel exports.',
       },
       {
         src: '/showcase/offline-pos-inventory.png',
         title: 'Inventory Status & Low-Stock Alerts',
         caption:
-          'Real-time inventory health monitor tracking 36 active SKUs (₱402,826.00 total inventory value), out-of-stock warnings, and threshold-based restock alerts.',
+          'Runs inside atomic Prisma checkout transactions so every sale deducts SKU stock safely and flags items below reorder thresholds before supplies run out.',
       },
       {
         src: '/showcase/offline-pos-rankings.png',
         title: 'Top Selling & Slow Moving SKUs',
         caption:
-          'Automated merchandise performance ranking across units sold and revenue alongside slow-moving inventory detection for smarter purchasing decisions.',
+          'Groups completed order line items across reporting windows to separate high-turnover campus staples from slow stock tying up storage and capital.',
       },
     ],
-    schematicModules: ['POS Checkout Terminal', 'Real-Time Stock Ledger', 'Prisma + PostgreSQL Schema', 'PDF & Excel Export'],
+    schematicModules: ['POS Checkout Terminal', 'Real-Time Stock Ledger', 'Prisma + SQLite Schema', 'PDF & Excel Export'],
   },
   {
     id: 'codm-camo-tracker',
@@ -217,13 +232,15 @@ export const FLAGSHIP_PROJECTS: PortfolioProject[] = [
     category: 'Interactive Web App · Next.js 14',
     plainSummary:
       'Dark-mode progress tracker for Call of Duty: Mobile weapon challenges, letting players track base camos, Gold weapons, and Platinum category unlocks directly in the browser.',
+    problem: 'Tracking dozens of weapon camo sets across tiers in-game is tedious.',
+    outcome: 'Zero-friction browser tracker with instant Gold & Platinum unlock sync.',
     highlights: [
       'Tracks all 6 base camo sets per weapon (Sand, Dragon, Splinter, Tiger, Jungle, Reptile) with challenge target counts',
       'One-click toggle for individual camos plus a Complete Gun action to mark an entire weapon done',
       'Live progress dashboard showing overall completion percentage, Gold weapon count, and Platinum category status',
-      'Built with Next.js 14 and TypeScript to run instantly in the browser with no required backend login',
+      'Built with Next.js 14 and TypeScript to run offline-ready in the browser with LocalStorage JSON backup/import',
     ],
-    stack: ['Next.js 14', 'React 18', 'TypeScript', 'QRCode', 'Vercel'],
+    stack: ['Next.js 14', 'React 18', 'TypeScript', 'Custom CSS', 'LocalStorage', 'PWA', 'Vercel'],
     liveUrl: 'https://codm-camo-tracker.vercel.app',
     repoUrl: 'https://github.com/sudo-marco-dev/CODM-camo-tracker',
     embeddable: true,
@@ -242,16 +259,17 @@ export const MORE_BUILDS: SecondaryBuild[] = [
     repoUrl: 'https://github.com/sudo-marco-dev/DROP_Realtime_web',
     embeddable: true,
     statusLabel: 'Live Preview',
+    cadShowcaseId: 'drop-v2-cad',
+    cadLabel: '3D Console',
   },
   {
     title: 'Electricity Tracker',
     kind: 'Utility · Next.js 16 + Recharts',
     summary: 'kWh cost calculator, billing-cycle analytics, and printable slips synced with Google Sheets.',
     stack: ['Next.js 16', 'Tailwind v4', 'Recharts', 'Google Sheets API'],
-    liveUrl: 'https://my-electricity-tracker.vercel.app',
     repoUrl: 'https://github.com/sudo-marco-dev/My_Electricity_Tracker',
     embeddable: false,
-    statusLabel: 'Protected Deployment',
+    statusLabel: 'Private Vercel',
   },
   {
     title: 'PSUSphere Dockerized',
@@ -463,7 +481,7 @@ export const SHOWCASE_GALLERY: ShowcaseItem[] = [
     categoryLabel: '3D Prints',
     title: 'Rapid-Printed Modular Smart House',
     caption:
-      'Initial black PLA physical print of the 8-part modular house commission, engineered for quick 1-day printing so the client could wire and assemble their embedded systems project.',
+      'Black PLA print of an 8-part modular house commission, engineered for 1-day printing so the client could immediately wire their embedded sensors.',
     tools: 'Flashforge Creator 3 · Client Print',
     imageSrc: '/showcase/client-smart-house-print.jpg',
     suggestedPath: 'apps/web/public/showcase/client-smart-house-print.jpg',
@@ -509,7 +527,7 @@ export const SHOWCASE_GALLERY: ShowcaseItem[] = [
     categoryLabel: 'Wiring & Hardware',
     title: 'Client Sintra-Board Wiring Reference',
     caption:
-      'Initial hand-built Sintra-board wand prototype supplied by a client, measured component-by-component (ESP32, I2C LCD, red sensor PCB, battery bay) to design their printable CAD enclosure.',
+      'Hand-built Sintra-board scanner prototype measured caliper-by-caliper (ESP32, I2C LCD, sensor PCB, battery bay) before drafting its 4-part CAD shell.',
     tools: 'ESP32 · I2C LCD · RF Module',
     imageSrc: '/showcase/wand-scanner-prototype-wiring.jpg',
     suggestedPath: 'apps/web/public/showcase/wand-scanner-prototype-wiring.jpg',
@@ -544,8 +562,8 @@ export const SHOWCASE_GALLERY: ShowcaseItem[] = [
     categoryLabel: 'Offline Apps',
     title: 'POS Sales & Profit Analytics',
     caption:
-      'Local-first Next.js + PostgreSQL reporting view showing ₱16,911.00 daily revenue across GCash, Cash, Card, and PayMaya alongside monthly Profit & Loss (37.24% margin) and PDF/Excel export.',
-    tools: 'Next.js 14 · Prisma · PostgreSQL',
+      'Aggregates shift transactions in SQLite via Prisma by payment tender for rapid cashier closeouts, computing real-time COGS gross margin with one-click PDF and Excel exports.',
+    tools: 'Next.js 14 · Prisma · SQLite',
     imageSrc: '/showcase/offline-pos-sales-pnl.png',
     suggestedPath: 'apps/web/public/showcase/offline-pos-sales-pnl.png',
   },
@@ -555,8 +573,8 @@ export const SHOWCASE_GALLERY: ShowcaseItem[] = [
     categoryLabel: 'Offline Apps',
     title: 'POS Inventory & Low-Stock Alerts',
     caption:
-      'Live stock monitor tracking 36 catalog SKUs (₱402,826.00 inventory valuation), out-of-stock toner alerts, and automatic reorder thresholds.',
-    tools: 'PostgreSQL · jsPDF · SheetJS',
+      'Runs inside atomic Prisma checkout transactions so every sale deducts SKU stock safely and flags items below reorder thresholds before supplies run out.',
+    tools: 'SQLite · jsPDF · SheetJS',
     imageSrc: '/showcase/offline-pos-inventory.png',
     suggestedPath: 'apps/web/public/showcase/offline-pos-inventory.png',
   },
@@ -566,7 +584,7 @@ export const SHOWCASE_GALLERY: ShowcaseItem[] = [
     categoryLabel: 'Offline Apps',
     title: 'POS Product Performance Rankings',
     caption:
-      'Ranked breakdown of Top 10 selling campus supplies and electronics versus slow-moving inventory to guide restocking.',
+      'Groups completed order line items across reporting windows to separate high-turnover campus staples from slow stock tying up storage and capital.',
     tools: 'Prisma ORM · Analytics · Next.js 14',
     imageSrc: '/showcase/offline-pos-rankings.png',
     suggestedPath: 'apps/web/public/showcase/offline-pos-rankings.png',
@@ -577,13 +595,13 @@ export const COMMUNITY_HIGHLIGHTS: CommunityHighlight[] = [
   {
     id: 'sui-builders-palawan',
     index: '01',
-    badge: '2nd Place · Certificate',
+    badge: 'Team 2nd Place · Certificate',
     organizer: 'Sui · DICT MIMAROPA · YGG Pilipinas · Oct-Nov 2025',
     title: 'Sui Builders Program · Palawan Cohort',
     summary:
-      'Completed a hands-on Web3 cohort taught in partnership with Sui, DICT, and YGG Pilipinas, learning Move smart contracts, coin/token minting, and deploying projects on Sui, finishing 2nd Place in the cohort competition.',
+      'Completed a hands-on Web3 cohort taught in partnership with Sui, DICT, and YGG Pilipinas, learning Move smart contracts, coin/token minting, and deploying projects on Sui, contributing as a member of our 2nd Place group build.',
     highlights: [
-      'Won 2nd Place in the cohort project competition building and minting on Sui Move',
+      'Contributed as a team member to a 2nd Place (runner-up) group project building and minting on Sui Move',
       'Featured via an official @SuiCommunity_PH (Sui Philippines) repost during the program',
       'Earned verified Certificate of Completion signed by YGG Metaversity Co-Leads',
     ],
@@ -670,10 +688,10 @@ export const CERTIFICATES: CertificateItem[] = [
     id: 'sui-builders-palawan-2025',
     title: 'Sui Builders Program · Palawan Cohort',
     issuer: 'Sui · DICT MIMAROPA · Trabahong Digital · YGG Pilipinas',
-    credentialType: 'Certificate of Completion · 2nd Place',
+    credentialType: 'Certificate of Completion · Team 2nd Place',
     date: '2025',
     summary:
-      'Hands-on Web3 developer cohort covering core blockchain fundamentals, Move smart contract programming, token minting, and deploying projects on Sui.',
+      'Hands-on Web3 developer cohort covering core blockchain fundamentals, Move smart contract programming, token minting, and deploying group projects on Sui.',
     previewImage: '/certificates/sui-builders-palawan-preview.jpg',
   },
 ];
@@ -702,21 +720,54 @@ export const OFFERINGS = [
   },
 ] as const;
 
-export const MAKER_PIPELINE = [
+export const SIGNAL_FLOW_NODES = [
   {
-    step: 'STEP 01',
-    tool: 'Onshape Cloud CAD (Cipher Lab)',
-    detail: 'Parametric enclosures & client commissions measured from real electronics for clean snap/fastener fit.',
+    step: 'NODE 01',
+    shortTitle: 'Onshape CAD',
+    subtitle: 'Parametric fit',
+    stageLabel: 'STAGE 01 · DIGITAL CAD TOLERANCES',
+    tool: 'Measured Onshape Multi-Part Enclosures (Cipher Lab)',
+    detail:
+      'Every case begins from real component clearances (OLED windows, ESP32-CAM lens cutouts, switches, and snap-fit battery lids) exported to inspectable multi-part .GLB assemblies.',
+    input: 'Sintra sketches & caliper specs',
+    output: 'Multi-part .GLB + .STL plates',
+    proof: 'RTNHS, Wand & House CAD',
   },
   {
-    step: 'STEP 02',
-    tool: 'Flashforge Creator 3 (PITBI @ PSU)',
-    detail: 'Dual-nozzle 3D printing for fast 1-day modular housings, multi-color prints, and functional parts.',
+    step: 'NODE 02',
+    shortTitle: 'Creator 3 IDEX',
+    subtitle: 'Dual-nozzle print',
+    stageLabel: 'STAGE 02 · PITBI FABRICATION',
+    tool: 'Flashforge Creator 3 Dual-Nozzle (PITBI @ PSU)',
+    detail:
+      'IDEX dual-extrusion workflows turn modular 8-part structures, functional brackets, and two-tone showcase prints around in 1 day, demonstrated live during Project Nexus.',
+    input: 'Sliced modular plates (0.4mm)',
+    output: 'Functional PLA / PETG parts',
+    proof: '1-Day House & Chess Plates',
   },
   {
-    step: 'STEP 03',
-    tool: 'Soldered ESP32 + Web Dashboard',
-    detail: 'Wired microcontrollers, stepper drivers, sensors & cameras connected live to Next.js + Supabase.',
+    step: 'NODE 03',
+    shortTitle: 'ESP32 + Wiring',
+    subtitle: 'Sensors & CAM',
+    stageLabel: 'STAGE 03 · EMBEDDED FIRMWARE',
+    tool: 'Soldered ESP32, Stepper Drivers & Camera Bridges',
+    detail:
+      'Custom power rails, soldered harnesses, OLED status displays, and C/C++ firmware connecting optical QR scanners, parcel drop-boxes, and 3-axis cranes over Wi-Fi.',
+    input: 'ESP32-CAM, drivers & switches',
+    output: 'HTTP / Realtime state events',
+    proof: 'RTNHS Scanner & 3-Axis Crane',
+  },
+  {
+    step: 'NODE 04',
+    shortTitle: 'Next.js + Cloud',
+    subtitle: 'Live telemetry',
+    stageLabel: 'STAGE 04 · FULL-STACK SOFTWARE',
+    tool: 'Next.js Dashboards, POS Ledgers & SMS Alerts',
+    detail:
+      'Production React & Next.js interfaces backed by Supabase PostgreSQL or Prisma SQLite delivering instant courtside scoring, role portals, and exportable PDF/Excel reports.',
+    input: 'Hardware events & user input',
+    output: 'Live UI, PDF/Excel & httpSMS',
+    proof: 'PSU-SportsTrack & RTNHS',
   },
 ] as const;
 
@@ -727,7 +778,7 @@ export const TOOLKIT_GROUPS = [
   },
   {
     heading: 'Backend & Data',
-    items: ['Supabase (Postgres, Auth, RLS)', 'Realtime CDC & Storage', 'Prisma ORM & PL/pgSQL', 'Python & Django', 'Sui Move (Web3 Cohort)', 'Playwright E2E Testing'],
+    items: ['Supabase (Postgres, Auth, RLS)', 'Realtime CDC & Storage', 'Prisma ORM, SQLite & PL/pgSQL', 'Python & Django', 'Sui Move (Web3 Cohort)', 'Playwright E2E Testing'],
   },
   {
     heading: 'Hardware & IoT',
@@ -742,8 +793,8 @@ export const TOOLKIT_GROUPS = [
 export const BSIT_TIMELINE = [
   {
     stage: 'FOUNDATIONS',
-    title: 'Python, Security Drills & Sui Builders Palawan (2nd Place)',
-    detail: 'Built programming logic, Python CTF drills, and earned 2nd Place in the Sui Builders Program Palawan cohort learning Move and Web3 app deployment.',
+    title: 'Python, Security Drills & Sui Builders Palawan (Team 2nd Place)',
+    detail: 'Built programming logic, Python CTF drills, and contributed as a team member to a 2nd Place group build in the Sui Builders Program Palawan cohort learning Move and Web3 app deployment.',
   },
   {
     stage: 'SYSTEMS & CONTAINERS',
@@ -753,7 +804,7 @@ export const BSIT_TIMELINE = [
   {
     stage: 'DATABASES & POS',
     title: 'PSU Sales & Inventory System',
-    detail: 'Built a full-stack Next.js + Prisma + PostgreSQL POS and inventory ledger with exportable PDF/Excel reports for ADS finals.',
+    detail: 'Built a full-stack Next.js + Prisma + SQLite POS and inventory ledger with backup/restore APIs and exportable PDF/Excel reports for ADS finals.',
   },
   {
     stage: 'CLIENT + IOT + 3D LAB',

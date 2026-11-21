@@ -1,8 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { ArrowUpRight, Eye } from 'lucide-react';
-import { SectionHeader } from '@void/ui';
+import { useEffect, useState } from 'react';
+import { ArrowUpRight, Box, Code2, Eye, Lock } from 'lucide-react';
 import {
   FLAGSHIP_PROJECTS,
   MORE_BUILDS,
@@ -10,6 +9,7 @@ import {
   type SecondaryBuild,
 } from '@/data/portfolio';
 import { LivePreviewCard } from './live-preview-card';
+import { StickyChapter } from './motion-primitives';
 import { ProjectDrawer } from './project-drawer';
 
 function buildToProject(item: SecondaryBuild, index: number): PortfolioProject {
@@ -25,22 +25,40 @@ function buildToProject(item: SecondaryBuild, index: number): PortfolioProject {
     repoUrl: item.repoUrl,
     embeddable: item.embeddable,
     previewNote: item.statusLabel,
+    cadShowcaseId: item.cadShowcaseId,
+    cadLabel: item.cadLabel,
   };
 }
 
 export function ProjectsSection() {
   const [selected, setSelected] = useState<PortfolioProject | null>(null);
 
-  return (
-    <section id="work" className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-20">
-      <SectionHeader
-        index="01"
-        label="Selected Works"
-        title="Deployed Systems, POS & Live Builds"
-        description="Real projects from Palawan State University, client school deployments, and web tools. Tap any card to inspect live previews or technical architecture."
-      />
+  useEffect(() => {
+    const onOpenProject = (e: Event) => {
+      const id = (e as CustomEvent<string>).detail;
+      const found = FLAGSHIP_PROJECTS.find((p) => p.id === id);
+      if (found) setSelected(found);
+    };
+    window.addEventListener('void:open-project', onOpenProject);
+    return () => window.removeEventListener('void:open-project', onOpenProject);
+  }, []);
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+  return (
+    <StickyChapter
+      id="work"
+      chapterCode="CODE ZONE"
+      index="01"
+      label="Selected Works · Act I"
+      title="Deployed Systems, POS & Live Builds"
+      narrative="Every project started with a real operational bottleneck at Palawan State University or a partner school, engineered from schema design to deployed hardware bridges."
+      noteBadge={
+        <span className="inline-flex items-center gap-1.5 border border-[var(--void-border)] bg-[var(--void-surface)] px-2.5 py-1 font-mono text-[11px] text-[var(--void-ink-muted)]">
+          <Code2 className="h-3.5 w-3.5 text-[var(--void-accent)]" strokeWidth={1.6} />
+          <span>src/deployments · main</span>
+        </span>
+      }
+    >
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         {FLAGSHIP_PROJECTS.map((project) => (
           <LivePreviewCard
             key={project.id}
@@ -52,8 +70,8 @@ export function ProjectsSection() {
       </div>
 
       {/* More Builds & Hardware Lab */}
-      <div className="mt-10 border border-[var(--void-border)] bg-[var(--void-surface)]">
-        <div className="flex items-center justify-between border-b border-[var(--void-border)] px-4 py-3 font-mono text-xs uppercase tracking-[0.16em] text-[var(--void-ink-muted)] sm:px-6">
+      <div className="mt-8 border border-[var(--void-border)] bg-[var(--void-surface)]">
+        <div className="flex items-center justify-between border-b border-[var(--void-border)] px-4 py-3 font-mono text-xs uppercase tracking-[0.16em] text-[var(--void-ink-muted)] sm:px-5">
           <span>More Builds &amp; Hardware Lab</span>
           <span className="text-[var(--void-ink-dim)]">{MORE_BUILDS.length} Repos</span>
         </div>
@@ -62,7 +80,7 @@ export function ProjectsSection() {
           {MORE_BUILDS.map((item, idx) => (
             <div
               key={item.title}
-              className="flex flex-col justify-between gap-4 px-4 py-4 transition-colors hover:bg-[var(--void-surface-hover)] sm:flex-row sm:items-center sm:px-6"
+              className="flex flex-col justify-between gap-4 px-4 py-4 transition-colors hover:bg-[var(--void-surface-hover)] sm:flex-row sm:items-center sm:px-5"
             >
               <div className="space-y-1">
                 <div className="flex flex-wrap items-center gap-2">
@@ -77,6 +95,21 @@ export function ProjectsSection() {
               </div>
 
               <div className="flex shrink-0 flex-wrap items-center gap-2">
+                {item.cadShowcaseId ? (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      window.dispatchEvent(
+                        new CustomEvent('void:open-showcase', { detail: item.cadShowcaseId }),
+                      )
+                    }
+                    className="inline-flex min-h-[40px] items-center gap-1.5 border border-[var(--void-border)] bg-[var(--void-bg)] px-3 font-mono text-xs text-[var(--void-amber)] transition-colors hover:border-[var(--void-amber)]"
+                  >
+                    <Box className="h-3.5 w-3.5" strokeWidth={1.5} />
+                    {item.cadLabel ?? '3D Model'}
+                  </button>
+                ) : null}
+
                 {item.embeddable && item.liveUrl ? (
                   <button
                     type="button"
@@ -96,6 +129,11 @@ export function ProjectsSection() {
                     {item.statusLabel}
                     <ArrowUpRight className="h-3.5 w-3.5" strokeWidth={1.5} />
                   </a>
+                ) : item.statusLabel === 'Private Vercel' ? (
+                  <span className="inline-flex min-h-[40px] items-center gap-1.5 border border-[var(--void-border)] bg-[var(--void-bg)] px-3 font-mono text-xs text-[var(--void-ink-dim)]">
+                    <Lock className="h-3 w-3 text-[var(--void-amber)]" strokeWidth={1.5} />
+                    Private Vercel
+                  </span>
                 ) : null}
 
                 <a
@@ -114,6 +152,6 @@ export function ProjectsSection() {
       </div>
 
       <ProjectDrawer project={selected} onClose={() => setSelected(null)} />
-    </section>
+    </StickyChapter>
   );
 }

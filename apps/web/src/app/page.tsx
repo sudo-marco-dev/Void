@@ -1,7 +1,11 @@
+import { StickySideRails } from '@/components/portfolio/bench-props';
+import { CommandPalette } from '@/components/portfolio/command-palette';
 import { CommunitySection } from '@/components/portfolio/community-section';
 import { ContactFooter } from '@/components/portfolio/contact-footer';
 import { CraftSection } from '@/components/portfolio/craft-section';
+import { CuttingMatBackdrop } from '@/components/portfolio/cutting-mat-overlay';
 import { Hero } from '@/components/portfolio/hero';
+import { ChapterProgressBar } from '@/components/portfolio/motion-primitives';
 import { Navbar } from '@/components/portfolio/navbar';
 import { ProjectsSection } from '@/components/portfolio/projects-section';
 import { JourneySection, ToolkitSection } from '@/components/portfolio/toolkit-timeline';
@@ -9,19 +13,9 @@ import { JourneySection, ToolkitSection } from '@/components/portfolio/toolkit-t
 export default function PortfolioHomePage() {
   return (
     <div className="relative min-h-dvh">
-      {/* Subtle architectural CAD grid + quiet ambient radial top glow */}
-      <div
-        aria-hidden="true"
-        className="void-draft-grid pointer-events-none fixed inset-0 z-0"
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none fixed inset-x-0 top-0 z-0 h-[420px]"
-        style={{
-          background:
-            'radial-gradient(ellipse 70% 60% at 50% 0%, var(--void-glow), transparent 100%)',
-        }}
-      />
+      <ChapterProgressBar />
+      <CuttingMatBackdrop />
+      <StickySideRails />
 
       <div className="relative z-10">
         <Navbar />
@@ -35,6 +29,8 @@ export default function PortfolioHomePage() {
         </main>
         <ContactFooter />
       </div>
+
+      <CommandPalette />
     </div>
   );
 }

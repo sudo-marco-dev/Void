@@ -47,8 +47,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: '(prefers-color-scheme: dark)', color: '#09090b' },
-    { media: '(prefers-color-scheme: light)', color: '#f8f8f7' },
+    { media: '(prefers-color-scheme: dark)', color: '#0b100e' },
+    { media: '(prefers-color-scheme: light)', color: '#f4f3ee' },
   ],
   width: 'device-width',
   initialScale: 1,
@@ -71,7 +71,7 @@ export default function RootLayout({
           <script dangerouslySetInnerHTML={{ __html: DEV_SW_CLEANUP_SCRIPT }} />
         ) : null}
       </head>
-      <body className="min-h-dvh overflow-x-hidden bg-[var(--void-bg)] font-sans text-[var(--void-ink)] antialiased selection:bg-[var(--void-accent)]/20">
+      <body className="min-h-dvh overflow-x-clip bg-[var(--void-bg)] font-sans text-[var(--void-ink)] antialiased selection:bg-[var(--void-accent)]/20">
         <MotionProvider>{children}</MotionProvider>
       </body>
     </html>

@@ -2,8 +2,9 @@
 
 import { motion } from 'motion/react';
 import { ArrowDown, ArrowRight, User } from 'lucide-react';
-import { SpotlightCard } from '@void/ui';
 import { PROFILE } from '@/data/portfolio';
+import { CuttingMatRulerBar } from './cutting-mat-overlay';
+import { MagneticButton, MicroWiggleBadge, TiltCard } from './motion-primitives';
 
 const SPEC_ROWS = [
   { label: 'Academic', value: `${PROFILE.degree} · PSU` },
@@ -16,26 +17,33 @@ export function Hero() {
   return (
     <section
       id="top"
-      className="mx-auto max-w-6xl px-4 pb-16 pt-10 sm:px-6 sm:pb-24 sm:pt-16 lg:pt-20"
+      className="mx-auto max-w-6xl px-4 pb-14 pt-8 sm:px-6 sm:pb-20 sm:pt-12 lg:pt-14"
     >
+      <CuttingMatRulerBar />
+
       <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-12 lg:gap-10">
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
+          initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
           className="space-y-6 lg:col-span-7"
         >
-          <div className="inline-flex flex-wrap items-center gap-2 border border-[var(--void-border)] bg-[var(--void-surface)] px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.16em] text-[var(--void-ink-muted)]">
-            <span
-              className="h-1.5 w-1.5 rounded-full bg-[var(--void-live)]"
-              aria-hidden="true"
-            />
-            <span>{PROFILE.fullName}</span>
-            <span className="opacity-40">·</span>
-            <span className="text-[var(--void-ink)]">BSIT 4th Year</span>
+          <div className="flex flex-wrap items-center gap-2">
+            <MicroWiggleBadge className="border border-[var(--void-border)] bg-[var(--void-surface)] px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.16em] text-[var(--void-ink-muted)]">
+              <span>{PROFILE.fullName}</span>
+              <span className="mx-2 opacity-40">·</span>
+              <span className="text-[var(--void-ink)]">BSIT 4th Year</span>
+            </MicroWiggleBadge>
+            <MicroWiggleBadge className="gap-2 border border-[var(--void-border)] bg-[var(--void-surface)] px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--void-amber)]">
+              <span
+                className="h-1.5 w-1.5 rounded-full bg-[var(--void-live)]"
+                aria-hidden="true"
+              />
+              <span>{PROFILE.shortAvailability}</span>
+            </MicroWiggleBadge>
           </div>
 
-          <h1 className="text-3xl font-semibold leading-[1.12] tracking-tight text-[var(--void-ink)] sm:text-5xl">
+          <h1 className="text-3xl font-semibold leading-[1.1] tracking-tight text-[var(--void-ink)] sm:text-5xl">
             {PROFILE.headline}
           </h1>
 
@@ -44,35 +52,39 @@ export function Hero() {
           </p>
 
           <div className="flex flex-col gap-3 pt-1 sm:flex-row sm:items-center">
-            <a
-              href="#work"
-              className="inline-flex min-h-[44px] items-center justify-center gap-2 bg-[var(--void-btn-bg)] px-5 py-2.5 text-sm font-medium text-[var(--void-btn-ink)] transition-colors hover:bg-[var(--void-btn-hover)]"
-            >
-              Preview Featured Work
-              <ArrowDown className="h-4 w-4" strokeWidth={1.75} />
-            </a>
-            <a
-              href="#contact"
-              className="inline-flex min-h-[44px] items-center justify-center gap-2 border border-[var(--void-border)] bg-[var(--void-surface)] px-5 py-2.5 text-sm font-medium text-[var(--void-ink)] transition-colors hover:border-[var(--void-border-strong)]"
-            >
-              Contact &amp; Inquiries
-              <ArrowRight className="h-4 w-4 text-[var(--void-accent)]" strokeWidth={1.75} />
-            </a>
+            <MagneticButton className="w-full sm:w-auto">
+              <a
+                href="#work"
+                className="inline-flex min-h-[44px] w-full items-center justify-center gap-2 bg-[var(--void-btn-bg)] px-5 py-2.5 text-sm font-medium text-[var(--void-btn-ink)] transition-colors hover:bg-[var(--void-btn-hover)] sm:w-auto"
+              >
+                Preview Featured Work
+                <ArrowDown className="h-4 w-4" strokeWidth={1.75} />
+              </a>
+            </MagneticButton>
+            <MagneticButton className="w-full sm:w-auto">
+              <a
+                href="#contact"
+                className="inline-flex min-h-[44px] w-full items-center justify-center gap-2 border border-[var(--void-border)] bg-[var(--void-surface)] px-5 py-2.5 text-sm font-medium text-[var(--void-ink)] transition-colors hover:border-[var(--void-border-strong)] sm:w-auto"
+              >
+                Contact &amp; Inquiries
+                <ArrowRight className="h-4 w-4 text-[var(--void-accent)]" strokeWidth={1.75} />
+              </a>
+            </MagneticButton>
           </div>
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, y: 12 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 0.5, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
           className="lg:col-span-5"
         >
-          <SpotlightCard crosshairs className="p-5 sm:p-6">
+          <TiltCard crosshairs maxTilt={3.5} hoverScale={1.01} className="p-5 sm:p-6">
             <div className="mb-4 flex items-center justify-between border-b border-[var(--void-border)] pb-3 font-mono text-xs">
               <span className="uppercase tracking-[0.16em] text-[var(--void-ink-muted)]">
-                Profile Spec
+                Workbench Spec · 1:1
               </span>
-              <span className="text-[var(--void-accent)]">2026</span>
+              <span className="text-[var(--void-amber)]">REV.05 · 2026</span>
             </div>
 
             {/* Embedded Headshot + Identity Row */}
@@ -87,9 +99,6 @@ export function Hero() {
                 ) : (
                   <div className="void-draft-grid flex h-full w-full flex-col items-center justify-center gap-1 text-center">
                     <User className="h-5 w-5 text-[var(--void-ink-muted)]" strokeWidth={1.5} />
-                    <span className="font-mono text-[9px] uppercase tracking-wider text-[var(--void-ink-dim)]">
-                      Photo
-                    </span>
                   </div>
                 )}
               </div>
@@ -122,30 +131,30 @@ export function Hero() {
             </dl>
 
             <div className="mt-5 grid grid-cols-3 gap-2 border-t border-[var(--void-border)] pt-4 text-center font-mono">
-              <div className="border border-[var(--void-border)] bg-[var(--void-bg)] px-2 py-2">
+              <MicroWiggleBadge className="w-full flex-col border border-[var(--void-border)] bg-[var(--void-bg)] px-2 py-2">
                 <div className="text-sm font-semibold tabular-nums text-[var(--void-ink)]">4+</div>
                 <div className="text-[10px] uppercase tracking-wider text-[var(--void-ink-dim)]">
                   Live Vercel
                 </div>
-              </div>
-              <div className="border border-[var(--void-border)] bg-[var(--void-bg)] px-2 py-2">
-                <div className="text-sm font-semibold tabular-nums text-[var(--void-ink)]">
+              </MicroWiggleBadge>
+              <MicroWiggleBadge className="w-full flex-col border border-[var(--void-border)] bg-[var(--void-bg)] px-2 py-2">
+                <div className="text-sm font-semibold tabular-nums text-[var(--void-accent)]">
+                  6 GLB
+                </div>
+                <div className="text-[10px] uppercase tracking-wider text-[var(--void-ink-dim)]">
+                  3D CAD
+                </div>
+              </MicroWiggleBadge>
+              <MicroWiggleBadge className="w-full flex-col border border-[var(--void-border)] bg-[var(--void-bg)] px-2 py-2">
+                <div className="text-sm font-semibold tabular-nums text-[var(--void-amber)]">
                   ESP32
                 </div>
                 <div className="text-[10px] uppercase tracking-wider text-[var(--void-ink-dim)]">
-                  Hardware &amp; IoT
+                  IoT + Print
                 </div>
-              </div>
-              <div className="border border-[var(--void-border)] bg-[var(--void-bg)] px-2 py-2">
-                <div className="text-xs font-semibold tabular-nums text-[var(--void-ink)] sm:text-sm">
-                  DUAL-NOZZLE
-                </div>
-                <div className="text-[10px] uppercase tracking-wider text-[var(--void-ink-dim)]">
-                  3D Print
-                </div>
-              </div>
+              </MicroWiggleBadge>
             </div>
-          </SpotlightCard>
+          </TiltCard>
         </motion.div>
       </div>
     </section>

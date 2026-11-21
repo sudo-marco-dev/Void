@@ -660,7 +660,10 @@ export function CadModelViewer({
               ) : null}
             </div>
 
-            <div className="max-h-[360px] divide-y divide-[var(--void-border-subtle)] overflow-y-auto">
+            <div
+              data-lenis-prevent
+              className="max-h-[360px] divide-y divide-[var(--void-border-subtle)] overflow-y-auto overscroll-contain"
+            >
               {parts.map((part) => {
                 const isHidden = hiddenParts.includes(part.key);
                 const isXrayShell = xrayEnabled && outerPartKeys.has(part.key);

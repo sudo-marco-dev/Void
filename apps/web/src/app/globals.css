@@ -8,54 +8,71 @@
 
 :root {
   color-scheme: dark;
-  --void-bg: #09090b;
-  --void-bg-alt: #0b0b0e;
-  --void-surface: #111113;
-  --void-surface-hover: #16161a;
-  --void-border: #27272a;
-  --void-border-subtle: #18181b;
-  --void-border-strong: #52525b;
-  --void-grid: rgba(255, 255, 255, 0.035);
-  --void-glow: rgba(56, 189, 248, 0.055);
-  --void-spotlight: rgba(56, 189, 248, 0.07);
-  --void-ink: #fafafa;
-  --void-ink-secondary: #d4d4d8;
-  --void-ink-muted: #a1a1aa;
-  --void-ink-dim: #71717a;
-  --void-accent: #38bdf8;
+  --void-bg: #0b100e;
+  --void-bg-alt: #0f1613;
+  --void-surface: #121a17;
+  --void-surface-hover: #17221d;
+  --void-border: #1e2d27;
+  --void-border-subtle: #16221d;
+  --void-border-strong: #355248;
+  --void-grid: rgba(45, 212, 191, 0.045);
+  --void-grid-major: rgba(45, 212, 191, 0.105);
+  --void-glow: rgba(45, 212, 191, 0.08);
+  --void-spotlight: rgba(45, 212, 191, 0.09);
+  --void-ink: #f4f7f5;
+  --void-ink-secondary: #d4e0dc;
+  --void-ink-muted: #98aba4;
+  --void-ink-dim: #647972;
+  --void-accent: #2dd4bf;
+  --void-amber: #f59e0b;
   --void-live: #10b981;
-  --void-btn-bg: #fafafa;
-  --void-btn-ink: #09090b;
-  --void-btn-hover: #e4e4e7;
-  --void-header-bg: rgba(9, 9, 11, 0.85);
+  --void-btn-bg: #2dd4bf;
+  --void-btn-ink: #071310;
+  --void-btn-hover: #5eead4;
+  --void-header-bg: rgba(11, 16, 14, 0.88);
 }
 
 :root.light {
   color-scheme: light;
-  --void-bg: #f8f8f7;
-  --void-bg-alt: #f1f1ef;
+  --void-bg: #f4f3ee;
+  --void-bg-alt: #ebe9e1;
   --void-surface: #ffffff;
-  --void-surface-hover: #f4f4f5;
-  --void-border: #e4e4e7;
-  --void-border-subtle: #ececef;
-  --void-border-strong: #a1a1aa;
-  --void-grid: rgba(9, 9, 11, 0.045);
-  --void-glow: rgba(2, 132, 199, 0.06);
-  --void-spotlight: rgba(2, 132, 199, 0.07);
-  --void-ink: #09090b;
-  --void-ink-secondary: #27272a;
-  --void-ink-muted: #52525b;
-  --void-ink-dim: #71717a;
-  --void-accent: #0284c7;
+  --void-surface-hover: #f7f6f1;
+  --void-border: #d5dbd7;
+  --void-border-subtle: #e5e8e4;
+  --void-border-strong: #8fa39b;
+  --void-grid: rgba(15, 118, 110, 0.055);
+  --void-grid-major: rgba(15, 118, 110, 0.115);
+  --void-glow: rgba(15, 118, 110, 0.07);
+  --void-spotlight: rgba(15, 118, 110, 0.075);
+  --void-ink: #0f1715;
+  --void-ink-secondary: #1e2d28;
+  --void-ink-muted: #4b5e58;
+  --void-ink-dim: #6f827b;
+  --void-accent: #0f766e;
+  --void-amber: #b45309;
   --void-live: #059669;
-  --void-btn-bg: #09090b;
-  --void-btn-ink: #fafafa;
-  --void-btn-hover: #27272a;
-  --void-header-bg: rgba(248, 248, 247, 0.88);
+  --void-btn-bg: #0f1715;
+  --void-btn-ink: #f4f3ee;
+  --void-btn-hover: #1e2d28;
+  --void-header-bg: rgba(244, 243, 238, 0.90);
 }
 
 html {
   scroll-behavior: smooth;
+}
+
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
 }
 
 body {
@@ -63,13 +80,33 @@ body {
   color: var(--void-ink);
 }
 
+/* Dual-scale self-healing cutting mat grid (24px minor + 120px 5cm major) */
 .void-draft-grid {
   background-image:
     linear-gradient(to right, var(--void-grid) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--void-grid) 1px, transparent 1px);
-  background-size: 32px 32px;
-  mask-image: radial-gradient(ellipse 85% 65% at 50% 15%, #000 40%, transparent 100%);
-  -webkit-mask-image: radial-gradient(ellipse 85% 65% at 50% 15%, #000 40%, transparent 100%);
+    linear-gradient(to bottom, var(--void-grid) 1px, transparent 1px),
+    linear-gradient(to right, var(--void-grid-major) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--void-grid-major) 1px, transparent 1px);
+  background-size:
+    24px 24px,
+    24px 24px,
+    120px 120px,
+    120px 120px;
+}
+
+.void-draft-grid-fade {
+  background-image:
+    linear-gradient(to right, var(--void-grid) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--void-grid) 1px, transparent 1px),
+    linear-gradient(to right, var(--void-grid-major) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--void-grid-major) 1px, transparent 1px);
+  background-size:
+    24px 24px,
+    24px 24px,
+    120px 120px,
+    120px 120px;
+  mask-image: radial-gradient(ellipse 92% 78% at 50% 18%, #000 50%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 92% 78% at 50% 18%, #000 50%, transparent 100%);
 }
 
 ::view-transition,
@@ -91,6 +128,12 @@ body {
 
 ::view-transition-new(root) {
   z-index: 9999;
+}
+
+.void-theme-switching *,
+.void-theme-switching *::before,
+.void-theme-switching *::after {
+  transition: none !important;
 }
 
 .void-thumb-light {

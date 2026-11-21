@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import {
+  Box,
   ChevronLeft,
   ChevronRight,
   ExternalLink,
@@ -13,6 +14,7 @@ import {
   X,
 } from 'lucide-react';
 import type { PortfolioProject } from '@/data/portfolio';
+import { useBodyScrollLock } from './motion-primitives';
 
 interface ProjectDrawerProps {
   project: PortfolioProject | null;
@@ -24,6 +26,8 @@ export function ProjectDrawer({ project, onClose }: ProjectDrawerProps) {
   const [viewportMode, setViewportMode] = useState<'desktop' | 'mobile'>('desktop');
   const [frameLoaded, setFrameLoaded] = useState(false);
   const [shotIdx, setShotIdx] = useState(0);
+
+  useBodyScrollLock(Boolean(project));
 
   useEffect(() => {
     if (!project) return;
@@ -39,16 +43,12 @@ export function ProjectDrawer({ project, onClose }: ProjectDrawerProps) {
     }
     setViewportMode(window.innerWidth < 768 ? 'mobile' : 'desktop');
 
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
     };
     window.addEventListener('keydown', onKeyDown);
 
     return () => {
-      document.body.style.overflow = prevOverflow;
       window.removeEventListener('keydown', onKeyDown);
     };
   }, [project, onClose]);
@@ -84,7 +84,7 @@ export function ProjectDrawer({ project, onClose }: ProjectDrawerProps) {
             className="relative z-10 flex h-[92dvh] w-full max-w-6xl flex-col border border-[var(--void-border)] bg-[var(--void-bg)] md:h-[85dvh]"
           >
             {/* Header Bar */}
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--void-border)] bg-[var(--void-surface)] px-4 py-3 sm:px-6">
+            <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-[var(--void-border)] bg-[var(--void-surface)] px-4 py-3 sm:px-6">
               <div className="min-w-0">
                 <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-[var(--void-ink-dim)]">
                   <span className="text-[var(--void-accent)]">{project.index}</span> · {project.category}
@@ -98,6 +98,25 @@ export function ProjectDrawer({ project, onClose }: ProjectDrawerProps) {
               </div>
 
               <div className="flex items-center gap-2">
+                {project.cadShowcaseId ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const targetId = project.cadShowcaseId;
+                      onClose();
+                      window.setTimeout(() => {
+                        window.dispatchEvent(
+                          new CustomEvent('void:open-showcase', { detail: targetId }),
+                        );
+                      }, 60);
+                    }}
+                    className="inline-flex min-h-[44px] items-center gap-1.5 border border-[var(--void-border)] bg-[var(--void-bg)] px-3 font-mono text-xs text-[var(--void-amber)] transition-colors hover:border-[var(--void-amber)]"
+                  >
+                    <Box className="h-3.5 w-3.5" strokeWidth={1.6} />
+                    <span className="hidden sm:inline">{project.cadLabel ?? 'Inspect 3D'}</span>
+                  </button>
+                ) : null}
+
                 {project.liveUrl ? (
                   <a
                     href={project.liveUrl}
@@ -224,7 +243,10 @@ export function ProjectDrawer({ project, onClose }: ProjectDrawerProps) {
             </div>
 
             {/* Content Viewport */}
-            <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+            <div
+              data-lenis-prevent
+              className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 sm:p-6"
+            >
               {tab === 'preview' && project.liveUrl ? (
                 <div className="flex h-full flex-col items-center justify-center">
                   <div
@@ -318,6 +340,18 @@ export function ProjectDrawer({ project, onClose }: ProjectDrawerProps) {
                     <p className="mt-2 text-base leading-relaxed text-[var(--void-ink)]">
                       {project.plainSummary}
                     </p>
+                    {project.problem && project.outcome ? (
+                      <div className="mt-4 grid grid-cols-1 gap-3 border-t border-[var(--void-border)] pt-4 font-mono text-xs sm:grid-cols-2">
+                        <div>
+                          <p className="text-[var(--void-amber)]">PROBLEM</p>
+                          <p className="mt-1 text-[var(--void-ink-muted)]">{project.problem}</p>
+                        </div>
+                        <div>
+                          <p className="text-[var(--void-accent)]">OUTCOME</p>
+                          <p className="mt-1 text-[var(--void-ink-secondary)]">{project.outcome}</p>
+                        </div>
+                      </div>
+                    ) : null}
                   </div>
 
                   <div className="border border-[var(--void-border)] bg-[var(--void-surface)] p-5">

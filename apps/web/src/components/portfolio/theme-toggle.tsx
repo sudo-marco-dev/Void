@@ -71,6 +71,8 @@ export function ThemeToggle() {
       Math.max(y, window.innerHeight - y),
     );
 
+    document.documentElement.classList.add('void-theme-switching');
+
     const transition = doc.startViewTransition(() => {
       flushSync(() => {
         applyTheme(next);
@@ -98,6 +100,9 @@ export function ThemeToggle() {
       })
       .catch(() => {
         // View transition aborted; state is already applied.
+      })
+      .finally(() => {
+        document.documentElement.classList.remove('void-theme-switching');
       });
 
     transition.finished
@@ -105,6 +110,7 @@ export function ThemeToggle() {
         // Ignore abort errors on rapid double-clicks.
       })
       .finally(() => {
+        document.documentElement.classList.remove('void-theme-switching');
         if (activeTransitionRef.current === transition) {
           activeTransitionRef.current = null;
           activeAnimRef.current = null;
@@ -118,6 +124,7 @@ export function ThemeToggle() {
     <button
       ref={buttonRef}
       type="button"
+      data-void-theme-toggle="true"
       onClick={handleToggle}
       aria-label={isLight ? 'Switch to dark mode' : 'Switch to light mode'}
       title={isLight ? 'Switch to dark mode' : 'Switch to light mode'}
